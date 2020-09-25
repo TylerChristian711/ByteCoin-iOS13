@@ -11,7 +11,7 @@ import Foundation
 struct CoinManager {
     
     let baseURL = "https://rest.coinapi.io/v1/exchangerate/BTC"
-    let apiKey = "my api key here"
+    let apiKey = ""
     
     
     let currencyArray = ["AUD", "BRL","CAD","CNY","EUR","GBP","HKD","IDR","ILS","INR","JPY","MXN","NOK","NZD","PLN","RON","RUB","SEK","SGD","USD","ZAR"]
@@ -26,10 +26,26 @@ struct CoinManager {
                     print("error in coinPrice func \(error!)")
                     return
                 }
-                let goodData = String(data: data!, encoding: .utf8)!
-                print(goodData)
+                if let goodData = data {
+                    _ = self.parseJSON(data: goodData)
+                }
             }
             task.resume()
+        }
+    }
+    
+    
+    
+    func parseJSON(data: Data) -> Double? {
+        let decoder = JSONDecoder()
+        do {
+            let decodedData = try decoder.decode(CoinData.self, from: data)
+            let lastPrice = decodedData.rate
+            print(lastPrice)
+            return lastPrice
+        } catch {
+            print("error in JSON parseing \(error)")
+            return nil
         }
     }
 }
